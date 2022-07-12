@@ -10,6 +10,7 @@ import discord
 from keepAlive import keep_alive
 from discord.ext import commands
 from replit import db
+from discord.ext.commands import has_permissions, MissingPermissions
 
 my_secret = os.environ['Token']
 
@@ -71,58 +72,71 @@ def cal_board():
   # print(listB)
   listC = sort_list(listA, listB)
   listC.reverse()
+
+@client.command(pass_context = True)
+@has_permissions(administrator = True)
+async def whoami(ctx):
+  await ctx.send('คุณเป็น administrator')
+
+@whoami.error
+async def whoami_error(ctx, error):
+  if isinstance(error, MissingPermissions):
+    text = "Sorry {}, you do not have permissions to do that!".format(ctx.message.author)
+    await ctx.send(text)
   
 @client.command()
-async def add(ctx, player: discord.Member, input: int): 
-  sPlayer1 = str(ctx.author.id)
-  if sPlayer1 == Admin[0] or sPlayer1 == Admin[1]:
-    sPlayer = str(player.id)
-    np = 'n' + str(player.id)
-    nPlayer = str(player.name)
-    check = False
-    keys = db.keys()
-    for row in keys:
-      if row == sPlayer:
-        check = True
-        break
-    if check == True:
-      value = db[sPlayer]
-      cal = value + input
-      db[sPlayer] = cal
-      db[np] = nPlayer
-    else:
-      db[np] = nPlayer
-      db[sPlayer] = input
-    await ctx.channel.send('<@'+ sPlayer +'> add '+ str(input) +'★point')
+@has_permissions(administrator = True)
+async def add(ctx, player: discord.Member, input: int):
+  sPlayer = str(player.id)
+  np = 'n' + str(player.id)
+  nPlayer = str(player.name)
+  check = False
+  keys = db.keys()
+  for row in keys:
+    if row == sPlayer:
+      check = True
+      break
+  if check == True:
+    value = db[sPlayer]
+    cal = value + input
+    db[sPlayer] = cal
+    db[np] = nPlayer
   else:
-    await ctx.channel.send('You can not use')
+    db[np] = nPlayer
+    db[sPlayer] = input
+  await ctx.channel.send('<@'+ sPlayer +'> add '+ str(input) +'★Star')
+
+@add.error
+async def add_error(ctx, error):
+  if isinstance(error, MissingPermissions):
+    text = "Sorry {}, you do not have permissions to do that!".format(ctx.message.author)
+    await ctx.send(text)
+  
 
 @client.command()
+@has_permissions(administrator = True)
 async def cut(ctx, player: discord.Member, input: int): 
-  sPlayer1 = str(ctx.author.id)
-  if sPlayer1 == Admin[0] or sPlayer1 == Admin[1]:
-    sPlayer = str(player.id)
-    np = 'n' + str(player.id)
-    nPlayer = str(player.name)
-    check = False
-    keys = db.keys()
-    for row in keys:
-      if row == sPlayer:
-        check = True
-        break
-    if check == True:
-      value = db[sPlayer]
-      cal = value - input
-      if cal < 0:
-        await ctx.channel.send('Error คะแนนติดลบ')
-      else:
-        db[sPlayer] = cal
-        db[np] = nPlayer
-        await ctx.channel.send('<@'+ sPlayer +'> del '+ str(input) +'★point')
+  sPlayer = str(player.id)
+  np = 'n' + str(player.id)
+  nPlayer = str(player.name)
+  check = False
+  keys = db.keys()
+  for row in keys:
+    if row == sPlayer:
+      check = True
+      break
+  if check == True:
+    value = db[sPlayer]
+    cal = value - input
+    if cal < 0:
+      await ctx.channel.send('Error คะแนนติดลบ')
     else:
-      await ctx.channel.send('<@'+ sPlayer +'> Not Found')
+      db[sPlayer] = cal
+      db[np] = nPlayer
+      await ctx.channel.send('<@'+ sPlayer +'> del '+ str(input) +'★Star')
   else:
-    await ctx.channel.send('You can not use')
+    await ctx.channel.send('<@'+ sPlayer +'> Not Found')
+  
     
 # @client.command()
 # async def show(ctx):
@@ -154,7 +168,7 @@ async def show(ctx):
     value = db[sPlayer]
     db[np] = nPlayer
     print(sPlayer)
-    await ctx.channel.send('<@'+ sPlayer +'> have '+ str(value) +'point')
+    await ctx.channel.send('<@'+ sPlayer +'> have '+ str(value) +'★Star')
   else:
     await ctx.channel.send('Not Found')
 
@@ -187,7 +201,7 @@ async def s(ctx, player: discord.Member):
   if check == True:
     value = db[sPlayer]
     db[np] = nPlayer
-    await ctx.channel.send(nPlayer +' have '+ str(value) +'point')
+    await ctx.channel.send(nPlayer +' have '+ str(value) +'★Star')
   else:
     await ctx.channel.send('Not Found')
 
