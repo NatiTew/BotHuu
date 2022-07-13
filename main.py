@@ -18,9 +18,6 @@ listA = []
 listB = []
 listC = []
 
-Admin = ['627139164537749505', '952814969097957377']
-
-
 client = commands.Bot(command_prefix='+')
 
 @client.event
@@ -34,13 +31,13 @@ async def hello(ctx):
   await ctx.send("❈────────•✦•❅•✦•────────❈\n"
                    ":rotating_light: ★กระดานคำสั่งจากนายทะเบียนบ้านหูยาว★ :rotating_light:\n\n"
 
-                  "+add <@name> 1   → เพิ่ม point (เฉพาะแอดมิน)\n"
-                  "+cut <@name> 1   → ลด point (เฉพาะแอดมิน)\n\n"
+                  "+add <@name> 1   → เพิ่ม Star (เฉพาะแอดมิน)\n"
+                  "+cut <@name> 1   → ลด Star (เฉพาะแอดมิน)\n\n"
 
-                  ":bulb: CHECK POINT★ (ลูกบ้านสามารถใช้ได้ทุกคน) :bulb:\n\n"
+                  ":bulb: CHECK Star★ (ลูกบ้านสามารถใช้ได้ทุกคน) :bulb:\n\n"
 
-                  "+show   → เช็ค point ตัวเอง\n"
-                  "+s <@name>   → เช็ค point คนอื่น\n"
+                  "+show   → เช็ค Star ตัวเอง\n"
+                  "+s <@name>   → เช็ค Star คนอื่น\n"
                   "+board   → เปิด LeaderBoard 25 อันดับแรก\n\n"
 
                   "❈────────•✦•❅•✦•────────❈\n")
@@ -136,23 +133,13 @@ async def cut(ctx, player: discord.Member, input: int):
       await ctx.channel.send('<@'+ sPlayer +'> del '+ str(input) +'★Star')
   else:
     await ctx.channel.send('<@'+ sPlayer +'> Not Found')
-  
-    
-# @client.command()
-# async def show(ctx):
-#   sPlayer = str(ctx.author.id)
-#   check = False
-#   keys = db.keys()
-#   for row in keys:
-#     if row == sPlayer:
-#       check = True
-#       break
-#   if check == True:
-#     value = db[sPlayer]
-#     print(sPlayer)
-#     await ctx.channel.send('<@'+ sPlayer +'> have '+ str(value) +'★point')
-#   else:
-#     await ctx.channel.send('Not Found')
+
+@cut.error
+async def cut_error(ctx, error):
+  if isinstance(error, MissingPermissions):
+    text = "Sorry {}, you do not have permissions to do that!".format(ctx.message.author)
+    await ctx.send(text)
+
 @client.command()
 async def show(ctx):
   sPlayer = str(ctx.author.id)
@@ -171,21 +158,6 @@ async def show(ctx):
     await ctx.channel.send('<@'+ sPlayer +'> have '+ str(value) +'★Star')
   else:
     await ctx.channel.send('Not Found')
-
-# @client.command()
-# async def s(ctx, player: discord.Member):
-#   sPlayer = str(player.id)
-#   check = False
-#   keys = db.keys()
-#   for row in keys:
-#     if row == sPlayer:
-#       check = True
-#       break
-#   if check == True:
-#     value = db[sPlayer]
-#     await ctx.channel.send('<@'+ sPlayer +'> have '+ str(value) +'★point')
-#   else:
-#     await ctx.channel.send('Not Found')
     
 @client.command()
 async def s(ctx, player: discord.Member):
